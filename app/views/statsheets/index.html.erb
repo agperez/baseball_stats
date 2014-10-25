@@ -1,0 +1,43 @@
+<h1>Listing statsheets</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Games</th>
+      <th>Ab</th>
+      <th>Runs</th>
+      <th>Hits</th>
+      <th>Doubles</th>
+      <th>Triples</th>
+      <th>Hr</th>
+      <th>Rbi</th>
+      <th>Sb</th>
+      <th>Cs</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @statsheets.each do |statsheet| %>
+      <tr>
+        <td><%= statsheet.games %></td>
+        <td><%= statsheet.ab %></td>
+        <td><%= statsheet.runs %></td>
+        <td><%= statsheet.hits %></td>
+        <td><%= statsheet.doubles %></td>
+        <td><%= statsheet.triples %></td>
+        <td><%= statsheet.hr %></td>
+        <td><%= statsheet.rbi %></td>
+        <td><%= statsheet.sb %></td>
+        <td><%= statsheet.cs %></td>
+        <td><%= link_to 'Show', statsheet %></td>
+        <td><%= link_to 'Edit', edit_statsheet_path(statsheet) %></td>
+        <td><%= link_to 'Destroy', statsheet, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Statsheet', new_statsheet_path %>

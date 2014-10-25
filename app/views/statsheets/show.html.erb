@@ -1,0 +1,54 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Games:</strong>
+  <%= @statsheet.games %>
+</p>
+
+<p>
+  <strong>Ab:</strong>
+  <%= @statsheet.ab %>
+</p>
+
+<p>
+  <strong>Runs:</strong>
+  <%= @statsheet.runs %>
+</p>
+
+<p>
+  <strong>Hits:</strong>
+  <%= @statsheet.hits %>
+</p>
+
+<p>
+  <strong>Doubles:</strong>
+  <%= @statsheet.doubles %>
+</p>
+
+<p>
+  <strong>Triples:</strong>
+  <%= @statsheet.triples %>
+</p>
+
+<p>
+  <strong>Hr:</strong>
+  <%= @statsheet.hr %>
+</p>
+
+<p>
+  <strong>Rbi:</strong>
+  <%= @statsheet.rbi %>
+</p>
+
+<p>
+  <strong>Sb:</strong>
+  <%= @statsheet.sb %>
+</p>
+
+<p>
+  <strong>Cs:</strong>
+  <%= @statsheet.cs %>
+</p>
+
+<%= link_to 'Edit', edit_statsheet_path(@statsheet) %> |
+<%= link_to 'Back', statsheets_path %>

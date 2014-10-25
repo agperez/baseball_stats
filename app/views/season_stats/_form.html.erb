@@ -1,0 +1,57 @@
+<%= form_for(@season_stat) do |f| %>
+  <% if @season_stat.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@season_stat.errors.count, "error") %> prohibited this season_stat from being saved:</h2>
+
+      <ul>
+      <% @season_stat.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :games %><br>
+    <%= f.number_field :games %>
+  </div>
+  <div class="field">
+    <%= f.label :ab %><br>
+    <%= f.number_field :ab %>
+  </div>
+  <div class="field">
+    <%= f.label :runs %><br>
+    <%= f.number_field :runs %>
+  </div>
+  <div class="field">
+    <%= f.label :hits %><br>
+    <%= f.number_field :hits %>
+  </div>
+  <div class="field">
+    <%= f.label :doubles %><br>
+    <%= f.number_field :doubles %>
+  </div>
+  <div class="field">
+    <%= f.label :triples %><br>
+    <%= f.number_field :triples %>
+  </div>
+  <div class="field">
+    <%= f.label :hr %><br>
+    <%= f.number_field :hr %>
+  </div>
+  <div class="field">
+    <%= f.label :rbi %><br>
+    <%= f.number_field :rbi %>
+  </div>
+  <div class="field">
+    <%= f.label :sb %><br>
+    <%= f.number_field :sb %>
+  </div>
+  <div class="field">
+    <%= f.label :cs %><br>
+    <%= f.number_field :cs %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>

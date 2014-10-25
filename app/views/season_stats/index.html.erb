@@ -1,0 +1,43 @@
+<h1>Listing season_stats</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Games</th>
+      <th>Ab</th>
+      <th>Runs</th>
+      <th>Hits</th>
+      <th>Doubles</th>
+      <th>Triples</th>
+      <th>Hr</th>
+      <th>Rbi</th>
+      <th>Sb</th>
+      <th>Cs</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @season_stats.each do |season_stat| %>
+      <tr>
+        <td><%= season_stat.games %></td>
+        <td><%= season_stat.ab %></td>
+        <td><%= season_stat.runs %></td>
+        <td><%= season_stat.hits %></td>
+        <td><%= season_stat.doubles %></td>
+        <td><%= season_stat.triples %></td>
+        <td><%= season_stat.hr %></td>
+        <td><%= season_stat.rbi %></td>
+        <td><%= season_stat.sb %></td>
+        <td><%= season_stat.cs %></td>
+        <td><%= link_to 'Show', season_stat %></td>
+        <td><%= link_to 'Edit', edit_season_stat_path(season_stat) %></td>
+        <td><%= link_to 'Destroy', season_stat, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Season stat', new_season_stat_path %>
