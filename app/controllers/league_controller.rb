@@ -1,0 +1,2 @@
+class LeagueController < ApplicationController
+end

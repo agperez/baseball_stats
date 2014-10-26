@@ -11,14 +11,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141025211032) do
+ActiveRecord::Schema.define(version: 20141026120252) do
+
+  create_table "leagues", force: true do |t|
+    t.string "name"
+  end
 
   create_table "players", force: true do |t|
     t.string   "first"
     t.string   "last"
+    t.string   "importid"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
+
+  add_index "players", ["importid"], name: "index_players_on_importid", unique: true
 
   create_table "season_stats", force: true do |t|
     t.integer  "games"
@@ -33,10 +40,16 @@ ActiveRecord::Schema.define(version: 20141025211032) do
     t.integer  "cs"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "player_id"
+    t.integer  "season_id"
+    t.float    "avg"
   end
 
+  add_index "season_stats", ["player_id"], name: "index_season_stats_on_player_id"
+  add_index "season_stats", ["season_id"], name: "index_season_stats_on_season_id"
+
   create_table "seasons", force: true do |t|
-    t.date     "year"
+    t.integer  "year"
     t.datetime "created_at"
     t.datetime "updated_at"
   end
@@ -56,12 +69,24 @@ ActiveRecord::Schema.define(version: 20141025211032) do
     t.integer  "cs"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "player_id"
+    t.integer  "team_id"
+    t.integer  "season_id"
+    t.integer  "season_stat_id"
+    t.integer  "league_id"
   end
+
+  add_index "statsheets", ["league_id"], name: "index_statsheets_on_league_id"
+  add_index "statsheets", ["player_id"], name: "index_statsheets_on_player_id"
+  add_index "statsheets", ["season_id"], name: "index_statsheets_on_season_id"
+  add_index "statsheets", ["season_stat_id"], name: "index_statsheets_on_season_stat_id"
+  add_index "statsheets", ["team_id"], name: "index_statsheets_on_team_id"
 
   create_table "teams", force: true do |t|
     t.string   "name"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.integer  "league_id"
   end
 
 end

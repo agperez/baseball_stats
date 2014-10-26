@@ -69,6 +69,6 @@ class StatsheetsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def statsheet_params
-      params.require(:statsheet).permit(:games, :ab, :runs, :hits, :doubles, :triples, :hr, :rbi, :sb, :cs)
+      params.require(:statsheet).permit(:games, :ab, :runs, :hits, :doubles, :triples, :hr, :rbi, :sb, :cs, :player_id, :team_id, :season_id, :season_stat_id, :league_id)
     end
 end
