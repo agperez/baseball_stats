@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141026120252) do
+ActiveRecord::Schema.define(version: 20141026150520) do
 
   create_table "leagues", force: true do |t|
     t.string "name"
@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(version: 20141026120252) do
     t.integer  "player_id"
     t.integer  "season_id"
     t.float    "avg"
+    t.float    "slg"
   end
 
   add_index "season_stats", ["player_id"], name: "index_season_stats_on_player_id"

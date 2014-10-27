@@ -6,22 +6,19 @@ class Statsheet < ActiveRecord::Base
   belongs_to :league
 
   def self.import_stats
-    CSV.foreach(Rails.root.join('app', 'assets', 'statmaster.csv'), headers: true) do |row|
+    CSV.foreach(Rails.root.join('app', 'assets', 'Batting-07-12.csv'), headers: true) do |row|
 
-      games   = if row["G"]   ==nil then 0 else row["G"]    end
-      ab      = if row["AB"]  ==nil then 0 else row["AB"]   end
-      runs    = if row["R"]   ==nil then 0 else row["R"]    end
-      hits    = if row["H"]   ==nil then 0 else row["H"]    end
-      doubles = if row["2B"]  ==nil then 0 else row["2B"]   end
-      triples = if row["3B"]  ==nil then 0 else row["3B"]   end
-      hr      = if row["HR"]  ==nil then 0 else row["HR"]   end
-      rbi     = if row["RBI"] ==nil then 0 else row["RBI"]  end
+      games   = row["G"]    ==nil   ? 0 : row["G"].to_i
+      ab      = row["AB"]   ==nil   ? 0 : row["AB"].to_i
+      runs    = row["R"]    ==nil   ? 0 : row["R"].to_i
+      hits    = row["H"]    ==nil   ? 0 : row["H"].to_i
+      doubles = row["2B"]   ==nil   ? 0 : row["2B"].to_i
+      triples = row["3B"]   ==nil   ? 0 : row["3B"].to_i
+      hr      = row["HR"]   ==nil   ? 0 : row["HR"].to_i
+      rbi     = row["RBI"]  ==nil   ? 0 : row["RBI"].to_i
 
-      if row["league"] == 'AL'
-        leauge = 1
-      else
-        league = 2
-      end
+      league  = row["league"]=='AL' ? 1 : 2
+
 
       team = Team.create_with(league_id: league)
                  .find_or_create_by(name: row["teamID"])
@@ -29,6 +26,8 @@ class Statsheet < ActiveRecord::Base
       player = Player.find_or_create_by(importid: row["playerID"])
 
       season = Season.find_or_create_by(year: row["yearID"])
+
+      new_stat_sheet = false
 
       statsheet = Statsheet.find_or_create_by(player_id: player.id, team_id: team.id,
                                               season_id: season.id, games: games,
@@ -42,65 +41,46 @@ class Statsheet < ActiveRecord::Base
         sheet.rbi              = rbi
         sheet.sb               = row["SB"]
         sheet.cs               = row["CS"]
+
+        new_stat_sheet = true
       end
 
-      new_season_stat = false
+      if new_stat_sheet
 
-      season_stat = SeasonStat.find_or_create_by(player_id: player.id, season_id: season.id) do |stat|
-        stat.games    = statsheet.games
-        stat.ab       = statsheet.ab
-        stat.runs     = statsheet.runs
-        stat.hits     = statsheet.hits
-        stat.doubles  = statsheet.doubles
-        stat.triples  = statsheet.triples
-        stat.hr       = statsheet.hr
-        stat.rbi      = statsheet.rbi
+        new_season_stat = false
 
-        new_season_stat = true
+        ss = SeasonStat.find_or_create_by(player_id: player.id, season_id: season.id) do |stat|
+          stat.games    = games
+          stat.ab       = ab
+          stat.runs     = runs
+          stat.hits     = hits
+          stat.doubles  = doubles
+          stat.triples  = triples
+          stat.hr       = hr
+          stat.rbi      = rbi
+          stat.avg      = (hits / ab.to_f)
+          stat.slg      = (((hits-doubles-triples-hr)+(2*doubles)+(3*triples)+(4*hr))/ab.to_f)
+          new_season_stat = true
+        end
+
+        statsheet.season_stat_id = ss.id
+        statsheet.save
+
+        if !new_season_stat
+          ss.games   += games
+          ss.ab      += ab
+          ss.runs    += runs
+          ss.hits    += hits
+          ss.doubles += doubles
+          ss.triples += triples
+          ss.hr      += hr
+          ss.rbi     += rbi
+          ss.avg     = (ss.hits / ss.ab.to_f)
+          ss.slg     = (((ss.hits-ss.doubles-ss.triples-ss.hr)+(2*ss.doubles)+(3*ss.triples)+(4*ss.hr)) / ss.ab.to_f)
+
+          ss.save
+        end
       end
-
-      if !new_season_stat
-        season_stat.games   += statsheet.games
-        season_stat.ab      += statsheet.ab
-        season_stat.runs    += statsheet.runs
-        season_stat.hits    += statsheet.hits
-        season_stat.doubles += statsheet.doubles
-        season_stat.triples += statsheet.triples
-        season_stat.hr      += statsheet.hr
-        season_stat.rbi     += statsheet.rbi
-        season_stat.avg     = statsheet.hits / statsheet.ab
-
-        season_stat.save
-      end
-
-
-
-      # if season_stat.nil?
-      #   SeasonStat.create_by(player_id: player.id, season_id: season.id) do |stat|
-      #     stat.games           = row["G"]   || 0
-      #     stat.ab              = row["AB"]  || 0
-      #     stat.runs            = row["R"]   || 0
-      #     stat.hits            = row["H"]   || 0
-      #     stat.doubles         = row["2B"]  || 0
-      #     stat.triples         = row["3B"]  || 0
-      #     stat.hr              = row["HR"]  || 0
-      #     stat.rbi             = row["RBI"] || 0
-      #     stat.sb              = row["SB"]  || 0
-      #     stat.cs              = row["CS"]  || 0
-      #   end
-      #
-      # else
-      #   season_stat.games      += row["G"]
-      #   season_stat.ab         += row["AB"]
-      #   season_stat.runs       += row["R"]
-      #   season_stat.hits       += row["H"]
-      #   season_stat.doubles    += row["2B"]
-      #   season_stat.triples    += row["3B"]
-      #   season_stat.hr         += row["HR"]
-      #   season_stat.rbi        += row["RBI"]
-      #   season_stat.sb         += row["SB"]
-      #   season_stat.cs         += row["CS"]
-      # end
     end
   end
 end
