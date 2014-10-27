@@ -5,6 +5,13 @@ class Statsheet < ActiveRecord::Base
   belongs_to :team
   belongs_to :league
 
+  def self.import_names
+    CSV.foreach(Rails.root.join('app', 'assets', 'Master-small.csv'), headers: true) do |row|
+      player = Player.find_by_importid(row["playerID"])
+      player.update(first: row["nameFirst"], last: row["nameLast"]) unless player.nil?
+    end
+  end
+
   def self.import_stats
     CSV.foreach(Rails.root.join('app', 'assets', 'Batting-07-12.csv'), headers: true) do |row|
 
@@ -63,8 +70,9 @@ class Statsheet < ActiveRecord::Base
           new_season_stat = true
         end
 
-        statsheet.season_stat_id = ss.id
-        statsheet.save
+        statsheet.update(season_stat_id: ss.id)
+        #statsheet.season_stat_id = ss.id
+        #statsheet.save
 
         if !new_season_stat
           ss.games   += games
