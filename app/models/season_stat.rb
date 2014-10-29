@@ -26,41 +26,15 @@ class SeasonStat < ActiveRecord::Base
   def self.triple_crown(year)
     season = Season.find_by_year(year)
 
-    top_rbi_AL = SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, 399)
-                           .joins(:leagues).where("name = ?", 'AL')
-                           .order("rbi DESC").first
+    top_rbi_AL = top_player(season, 399, 'AL', 'rbi DESC')
+    top_rbi_NL = top_player(season, 399, 'NL', 'rbi DESC')
+    top_hr_AL  = top_player(season, 399, 'AL', 'hr DESC')
+    top_hr_NL  = top_player(season, 399, 'NL', 'hr DESC')
+    top_avg_AL = top_player(season, 399, 'AL', 'avg DESC')
+    top_avg_NL = top_player(season, 399, 'NL', 'avg DESC')
 
-    top_rbi_NL = SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, 399)
-                           .joins(:leagues).where("name = ?", 'NL')
-                           .order("rbi DESC").first
-
-    top_hr_AL  = SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, 399)
-                           .joins(:leagues).where("name = ?", 'AL')
-                           .order("hr DESC").first
-
-    top_hr_NL  = SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, 399)
-                           .joins(:leagues).where("name = ?", 'NL')
-                           .order("hr DESC").first
-
-    top_avg_AL = SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, 399)
-                           .joins(:leagues).where("name = ?", 'AL')
-                           .order("avg DESC").first
-
-    top_avg_NL = SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, 399)
-                           .joins(:leagues).where("name = ?", 'NL')
-                           .order("avg DESC").first
-
-    if top_rbi_AL.player_id == top_hr_AL.player_id and top_rbi_AL.player_id == top_avg_AL.player_id
-      al_winner = year.to_s+" AL Winner: "+top_rbi_AL.player.first+" "+top_rbi_AL.player.last
-    else
-      al_winner = "No AL Winner for "+year.to_s
-    end
-
-    if top_rbi_NL.player_id == top_hr_NL.player_id and top_rbi_NL.player.id == top_avg_NL.player_id
-      nl_winner = year.to_s+" NL Winner: "+top_rbi_NL.player.first+" "+top_rbi_NL.player.last
-    else
-      nl_winner = "No NL Winner for "+year.to_s
-    end
+    al_winner = "AL: "+check_crown(top_rbi_AL, top_hr_AL, top_avg_AL, year)
+    nl_winner = "NL: "+check_crown(top_rbi_NL, top_hr_NL, top_avg_NL, year)
 
     return [al_winner, nl_winner]
   end
@@ -69,19 +43,59 @@ class SeasonStat < ActiveRecord::Base
     year1_id = Season.find_by_year(year1).id
     year2_id = Season.find_by_year(year2).id
 
-    year1_players = Player.joins(:season_stats)
-                          .where("season_stats.season_id = ?", year1_id)
-                          .pluck(:id)
-
-    year2_players = Player.joins(:season_stats)
-                          .where("season_stats.season_id = ?", year2_id)
-                          .pluck(:id)
+    year1_players = find_season_ids(year1_id)
+    year2_players = find_season_ids(year2_id)
 
     players = year1_players & year2_players
 
     stats = SeasonStat.where(:player_id => players)
                       .where("season_stats.season_id = ? OR season_stats.season_id = ?", year1_id, year2_id)
                       .order(:player_id)
+
+
+    mip_result = find_mip(stats, year1_id)
+    mip = Player.find(mip_result[0])
+    mip_message = mip.first+" "+mip.last+" is the Most Improved Player from "+year1.to_s+" to "+year2.to_s+", with improvement: +"+mip_result[1].round(3).to_s
+
+    return mip_message
+  end
+
+  def self.team_slugging(team, year)
+    season = Season.find_by_year(year).id
+
+    stats = SeasonStat.where("season_stats.season_id = ?", season).joins(:teams).where("name = ?", team)
+
+    slugging_list = []
+    slugging_list << "Slugging% for "+team+", "+year.to_s
+
+    stats.each do |stat|
+      player = stat.player
+      name = player.first+" "+player.last
+      slg = stat.slg == nil ? "N/A" : stat.slg.round(3).to_s
+
+      slugging_list << name+": "+slg
+    end
+
+    slugging_list << "Total: "+stats.length.to_s
+
+    return slugging_list
+  end
+
+  def self.check_crown(rbi, hr, avg, year)
+    if rbi.player_id == hr.player_id and rbi.player_id == avg.player_id
+      rbi.player.first+" "+rbi.player.last+" wins in "+year.to_s
+    else
+      "No Winner for "+year.to_s
+    end
+  end
+
+  def self.find_season_ids(year_id)
+    Player.joins(:season_stats)
+          .where("season_stats.season_id = ?", year_id)
+          .pluck(:id)
+  end
+
+  def self.find_mip(stats, year1_id)
 
     i = true
     first = ""
@@ -114,30 +128,12 @@ class SeasonStat < ActiveRecord::Base
         i = true
       end
     end
-
-    mip = Player.find(top_player)
-    mip_message = mip.first+" "+mip.last+" is the Most Improved Player from "+year1.to_s+" to "+year2.to_s+", with improvement: +"+top_avg.round(3).to_s
-    return mip_message
+    return [top_player, top_avg]
   end
 
-  def self.team_slugging(team, year)
-    season = Season.find_by_year(year).id
-
-    stats = SeasonStat.where("season_stats.season_id = ?", season).joins(:teams).where("name = ?", team)
-
-    slugging_list = []
-    slugging_list << "Slugging% for "+team+", "+year.to_s
-
-    stats.each do |stat|
-      player = stat.player
-      name = player.first+" "+player.last
-      slg = stat.slg == nil ? "N/A" : stat.slg.round(3).to_s
-
-      slugging_list << name+": "+slg
-    end
-
-    slugging_list << "Total: "+stats.length.to_s
-
-    return slugging_list
+  def self.top_player(season, ab, league, stat_order)
+    SeasonStat.where("season_stats.season_id = ? AND season_stats.ab > ?", season.id, ab)
+                           .joins(:leagues).where("name = ?", league)
+                           .order(stat_order).first
   end
 end

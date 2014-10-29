@@ -12,8 +12,13 @@ class Statsheet < ActiveRecord::Base
     end
   end
 
-  def self.import_stats
-    CSV.foreach(Rails.root.join('app', 'assets', 'Batting-07-12.csv'), headers: true) do |row|
+  def self.import_all
+    self.import_stats(Rails.root.join('app', 'assets', 'Batting-07-12.csv'))
+  end
+  # Rails.root.join('app', 'assets', 'Batting-07-12.csv'
+  def self.import_stats(file)
+    i = 0
+    CSV.foreach(file, headers: true) do |row|
 
       games   = row["G"]    ==nil   ? 0 : row["G"].to_i
       ab      = row["AB"]   ==nil   ? 0 : row["AB"].to_i
@@ -23,6 +28,8 @@ class Statsheet < ActiveRecord::Base
       triples = row["3B"]   ==nil   ? 0 : row["3B"].to_i
       hr      = row["HR"]   ==nil   ? 0 : row["HR"].to_i
       rbi     = row["RBI"]  ==nil   ? 0 : row["RBI"].to_i
+      sb      = row["SB"]   ==nil   ? 0 : row["SB"].to_i
+      cs      = row["CS"]   ==nil   ? 0 : row["CS"].to_i
 
       league  = row["league"]=='AL' ? 1 : 2
 
@@ -46,10 +53,11 @@ class Statsheet < ActiveRecord::Base
         sheet.triples          = triples
         sheet.hr               = hr
         sheet.rbi              = rbi
-        sheet.sb               = row["SB"]
-        sheet.cs               = row["CS"]
+        sheet.sb               = sb
+        sheet.cs               = cs
 
         new_stat_sheet = true
+        i += 1
       end
 
       if new_stat_sheet
@@ -90,5 +98,6 @@ class Statsheet < ActiveRecord::Base
         end
       end
     end
+    return i
   end
 end
