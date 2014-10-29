@@ -4,7 +4,7 @@ This App uses Rails 4 and Ruby 2
 
 == Setup
 
-* The app uses sqlite3 in the dev environment. If you prefer pg or similar, you'll need add the gem and adjust development.rb before continuing.
+* The app uses sqlite3 in the dev environment. If you prefer pg or similar, you'll to need add the gem and adjust development.rb before continuing.
 
 1. Run <tt>bundle install</tt>
 
@@ -25,8 +25,8 @@ There are only rspec tests for the model, as the exercise specified answers shou
 
 == Assumptions
 
-* I decided to combine each player's season data into a seperate, single-row format during import, in addition to storing the raw CSV data. My intention in doing this is to cut down on queries during stat lookup at the expense of import speed, as imports would (in a real life scenerio) only need to be done once per year.
+* I decided to combine each player's season data into a separate, single-row format during import, in addition to storing the raw CSV data. My intention in doing this is to cut down on queries during stat lookup at the expense of import speed, as imports would (in a real life scenario) only need to be done once per year.
 
-* For the same reasons mentioned above, I also calculated each player's season slugging and percentage and average during import, rather than calculating them at the time of lookup.
+* For the same reasons mentioned above, I also calculate and store each player's season slugging percentage and average during import, rather than calculating them at the time of lookup.
 
 * The exercise instructions mention accounting for a future case where pitching stats would be imported. For simplicity, I didn't specifically include pitching stat parameters in the models, but I wrote the Statsheet methods such that these could easily be added, along with a few more lines in the 'import_stats' method, without much difficulty.
