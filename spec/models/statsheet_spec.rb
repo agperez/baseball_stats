@@ -1,22 +1,22 @@
 require 'rails_helper'
 
 RSpec.describe Statsheet, :type => :model do
-  
-  before(:all) { Statsheet.import_stats(Rails.root.join('app', 'assets', 'samplestats.csv')) }
+
+  before(:each) { Statsheet.import_stats(Rails.root.join('app', 'assets', 'samplestats.csv')) }
   let(:player) { Player.find_by_importid("abreuto01").id }
   let(:season) { Season.find_by_year(2009).id }
   let(:stat)   { SeasonStat.where("player_id = ? AND season_id = ?", player, season) }
 
   it 'changes the number of Statsheets' do
-    expect(Statsheet.count).to eq(11)
+    expect(Statsheet.count).to eq(13)
   end
 
   it 'changes the number of Players' do
-    expect(Player.count).to eq(3)
+    expect(Player.count).to eq(5)
   end
 
   it 'changes the number of Teams' do
-    expect(Team.count).to eq(6)
+    expect(Team.count).to eq(7)
   end
 
   it 'changes the number of Seasons' do
@@ -24,7 +24,7 @@ RSpec.describe Statsheet, :type => :model do
   end
 
   it 'changes the number of SeasonStats' do
-    expect(SeasonStat.count).to eq(10)
+    expect(SeasonStat.count).to eq(12)
   end
 
   it 'stores nil stat values as 0' do

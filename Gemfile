@@ -27,6 +27,8 @@ gem 'sdoc', '~> 0.4.0',          group: :doc
 # gem 'bcrypt', '~> 3.1.7'
 
 gem 'rspec-rails'
+gem 'database_cleaner'
+gem 'pry-rails'
 
 group :test do
   gem 'minitest-reporters', '1.0.5'
