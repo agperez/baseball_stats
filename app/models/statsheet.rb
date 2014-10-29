@@ -19,6 +19,9 @@ class Statsheet < ActiveRecord::Base
   # Rails.root.join('app', 'assets', 'Batting-07-12.csv'
   def self.import_stats(file)
     i = 0
+    League.find_or_create_by(name: 'AL')
+    League.find_or_create_by(name: 'NL')
+
     CSV.foreach(file, headers: true) do |row|
 
       games   = row["G"]    ==nil   ? 0 : row["G"].to_i
